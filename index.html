@@ -316,7 +316,7 @@ select{padding:9px 12px;font-size:.72rem;background:#fff;border:1px solid var(--
 .abre-cats svg{transition:transform .28s;flex:none}
 .abre-cats[aria-expanded="true"] svg{transform:rotate(180deg)}
 .menu-cats{display:none;flex-direction:column;background:var(--papel);
-  border-top:1px solid var(--linha);max-height:70svh;overflow-y:auto}
+  border-top:1px solid var(--linha);max-height:70svh;overflow-y:auto;overflow-x:hidden}
 .menu-cats:not([hidden]){display:flex}
 .linha-cat{display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:15px 5vw;border-bottom:1px solid var(--linha);text-align:left;font-size:.95rem;
@@ -332,8 +332,11 @@ select{padding:9px 12px;font-size:.72rem;background:#fff;border:1px solid var(--
   color:#5A4C4E;transition:.25s;display:flex;align-items:center;gap:6px;white-space:nowrap}
 .generos button i{font-style:normal;font-size:.56rem;letter-spacing:.06em;opacity:.6}
 .generos button.on{background:var(--vermelho);color:#fff}
-.generos-menu{display:flex;gap:6px;padding:13px 5vw;border-bottom:1px solid var(--linha)}
-.generos-menu button{flex:1;padding:13px 10px;border-radius:100px;background:#F0E0DE;
+/* 2x2 e nao 4 em linha: em 390px os quatro botoes somavam 442px e a pagina
+   inteira passava a arrastar pro lado quando o menu abria */
+.generos-menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:13px 5vw;
+  border-bottom:1px solid var(--linha)}
+.generos-menu button{min-width:0;padding:13px 8px;border-radius:100px;background:#F0E0DE;
   font-size:.88rem;letter-spacing:.08em;color:#3A3032;display:flex;align-items:center;
   justify-content:center;gap:7px}
 .generos-menu button i{font-style:normal;font-size:.66rem;opacity:.6}
@@ -16561,15 +16564,17 @@ select{padding:9px 12px;font-size:.72rem;background:#fff;border:1px solid var(--
       veu  = document.getElementById('veu'),
       rotulo = document.getElementById('catAtual');
 
+  /* trava so o eixo Y: 'overflow:hidden' cheio apagava o overflow-x:clip do CSS
+     e a pagina voltava a arrastar pro lado com o menu aberto */
   function fechaMenu(){
     menu.hidden = true; veu.hidden = true;
     abre.setAttribute('aria-expanded','false');
-    document.body.style.overflow = '';
+    document.body.style.overflowY = '';
   }
   function abreMenu(){
     menu.hidden = false; veu.hidden = false;
     abre.setAttribute('aria-expanded','true');
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflowY = 'hidden';
   }
   abre.addEventListener('click', function(){ menu.hidden ? abreMenu() : fechaMenu(); });
   veu.addEventListener('click', fechaMenu);
@@ -16708,7 +16713,7 @@ select{padding:9px 12px;font-size:.72rem;background:#fff;border:1px solid var(--
 
     document.querySelector('.lb-info').scrollTop = 0;
     lb.classList.add('on');
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflowY = 'hidden';
   }
 
   /* o card inteiro abre a ficha, nao so a lupa */
@@ -16722,7 +16727,7 @@ select{padding:9px 12px;font-size:.72rem;background:#fff;border:1px solid var(--
     var c = document.activeElement && document.activeElement.closest('.card');
     if(c){ ev.preventDefault(); abreFicha(c); }
   });
-  function fecha(){ lb.classList.remove('on'); document.body.style.overflow = ''; }
+  function fecha(){ lb.classList.remove('on'); document.body.style.overflowY = ''; }
   document.getElementById('lbx').addEventListener('click', fecha);
   lb.addEventListener('click', function(e){ if(e.target === lb) fecha(); });
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape') fecha(); });
