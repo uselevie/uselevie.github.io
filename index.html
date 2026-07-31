@@ -316,7 +316,7 @@ select{padding:9px 12px;font-size:.72rem;background:#fff;border:1px solid var(--
 .abre-cats svg{transition:transform .28s;flex:none}
 .abre-cats[aria-expanded="true"] svg{transform:rotate(180deg)}
 .menu-cats{display:none;flex-direction:column;background:var(--papel);
-  border-top:1px solid var(--linha);max-height:70svh;overflow-y:auto;overflow-x:hidden}
+  border-top:1px solid var(--linha);max-height:78svh;overflow-y:auto;overflow-x:hidden}
 .menu-cats:not([hidden]){display:flex}
 .linha-cat{display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:15px 5vw;border-bottom:1px solid var(--linha);text-align:left;font-size:.95rem;
@@ -16576,7 +16576,26 @@ select{padding:9px 12px;font-size:.72rem;background:#fff;border:1px solid var(--
     abre.setAttribute('aria-expanded','true');
     document.body.style.overflowY = 'hidden';
   }
-  abre.addEventListener('click', function(){ menu.hidden ? abreMenu() : fechaMenu(); });
+
+  /* O menu desce a partir da barra. Se a barra ainda nao grudou no topo (a pessoa
+     esta acima dela, no meio da capa), ele abriria pra fora da tela e ninguem ve
+     categoria nenhuma. Entao leva a pagina ate a barra primeiro.
+     A rolagem tem que TERMINAR antes de abrir: travar o overflowY no meio do
+     caminho cancela o scroll suave e a barra para onde estiver. */
+  function comBarraNoTopo(depois){
+    var b = document.getElementById('barra'), alvo = b.offsetTop;
+    if(window.scrollY >= alvo - 2) { depois(); return; }
+    window.scrollTo({top: alvo, behavior:'smooth'});
+    var voltas = 0;
+    var t = setInterval(function(){
+      if(window.scrollY >= alvo - 2 || ++voltas > 60){ clearInterval(t); depois(); }
+    }, 25);
+  }
+
+  abre.addEventListener('click', function(){
+    if(!menu.hidden){ fechaMenu(); return; }
+    comBarraNoTopo(abreMenu);
+  });
   veu.addEventListener('click', fechaMenu);
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && !menu.hidden) fechaMenu(); });
 
